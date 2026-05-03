@@ -18,7 +18,7 @@
             <div class="logo">🏛</div>
             <h3>Voter Login</h3>
 
-            <input id="voterId" type="text" placeholder="Enter Name (mama)">
+            <input id="voterId" type="text" placeholder="Enter Voter ID">
             <input id="password" type="password" placeholder="Enter Password">
 
             <button onclick="login()">Login</button>
@@ -26,7 +26,7 @@
         </div>
 
         <!-- DASHBOARD -->
-        <div class="right" id="dashboard" style="display:none;">
+        <div class="right" id="dashboard">
 
             <div class="nav-box">
                 <h4>Positions</h4>
@@ -52,173 +52,204 @@
 
 </div>
 
-<!-- =========================
-   MAIN APP LOGIC
-========================= -->
 <script>
 
-let voterPasswords = [];
-for (let i = 0; i < 100; i++) {
-    voterPasswords.push(1230 + i);
+/* VOTERS */
+let validVoters = {};
+let currentVoter = null;
+
+for (let i = 1; i <= 53; i++) {
+    let num = i.toString().padStart(4, "0");
+    validVoters["ps/mec/22/" + num] = num;
 }
 
-let currentPassword = null;
+/* LOGIN */
+async function login() {
 
-/* =========================
-   LOGIN
-========================= */
-async function login(){
+    let id = voterId.value.toLowerCase().trim();
+    let pass = password.value.trim();
 
-    let id = document.getElementById("voterId").value.toLowerCase();
-    let pass = document.getElementById("password").value;
-
-    if(id !== "mama"){
-        alert("Invalid name ❌");
+    if (!(id in validVoters)) {
+        alert("Invalid Voter ID ❌");
         return;
     }
 
-    if(!voterPasswords.includes(Number(pass))){
-        alert("Invalid password ❌");
+    if (pass !== validVoters[id]) {
+        alert("Wrong password ❌");
         return;
     }
 
     try {
+        const cleanId = id.replace(/\//g, "_");
+        const snap = await get(ref(db, 'voters/' + cleanId));
 
-        const voterRef = ref(db, 'voters/' + pass);
-        const snap = await get(voterRef);
-
-        if(snap.exists()){
-            alert("❌ You already voted");
+        if (snap.exists()) {
+            alert("❌ Already voted");
             return;
         }
 
-        currentPassword = pass;
+        currentVoter = cleanId;
 
-        loginPanel.style.display="none";
-        dashboard.style.display="flex";
+        loginPanel.style.display = "none";
+        dashboard.style.display = "flex";
 
         showPresident();
 
-    } catch (err) {
-        console.log(err);
-        alert("Firebase not connected ❌");
+    } catch {
+        alert("Database error ❌");
     }
 }
 
-/* =========================
-   ADMIN LOGIN
-========================= */
-function adminLogin(){
-
+/* ADMIN */
+function adminLogin() {
     let pass = prompt("Admin password");
 
-    if(pass === "admin123"){
-        loginPanel.style.display="none";
-        dashboard.style.display="flex";
-        voteBox.style.display="none";
-        adminPanel.style.display="block";
-
+    if (pass === "admin123") {
+        loginPanel.style.display = "none";
+        dashboard.style.display = "flex";
+        voteBox.style.display = "none";
+        adminPanel.style.display = "block";
         showResults();
     } else {
         alert("Wrong password ❌");
     }
 }
 
-/* =========================
-   VOTING FLOW
-========================= */
-function next(pos){
-    if(pos==="president") showPRO();
-    else if(pos==="pro") showGS();
-    else if(pos==="gs") showFS();
-    else if(pos==="fs") showTreasurer();
+/* FLOW */
+function next(pos) {
+    if (pos === "president") showPRO();
+    else if (pos === "pro") showGS();
+    else if (pos === "gs") showFS();
+    else if (pos === "fs") showTreasurer();
     else finishVoting();
 }
 
-function finishVoting(){
+function finishVoting() {
 
-    set(ref(db, 'voters/' + currentPassword), true);
+    set(ref(db, 'voters/' + currentVoter), true);
 
     voteBox.innerHTML = "<h3>Thank you for voting 🗳</h3>";
 
     setTimeout(() => {
-
         loginPanel.style.display = "block";
         dashboard.style.display = "none";
+        voteBox.style.display = "block";
+        adminPanel.style.display = "none";
 
-        document.getElementById("voterId").value = "";
-        document.getElementById("password").value = "";
+        voterId.value = "";
+        password.value = "";
 
-        currentPassword = null;
+        currentVoter = null;
 
     }, 2000);
 }
 
-/* =========================
-   UI
-========================= */
-function showPresident(){
-    voteBox.innerHTML=`
+/* UI WITH IMAGES */
+function showPresident() {
+    voteBox.innerHTML = `
     <h3>President</h3>
-    <div class="candidate">👩🏽 Ama <button onclick="vote('president','Ama')">Vote</button></div>
-    <div class="candidate">👨🏽 Kofi <button onclick="vote('president','Kofi')">Vote</button></div>`;
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg">
+        <span>Ama</span>
+        <button onclick="vote('president','Ama')">Vote</button>
+    </div>
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg">
+        <span>Kofi</span>
+        <button onclick="vote('president','Kofi')">Vote</button>
+    </div>`;
 }
 
-function showPRO(){
-    voteBox.innerHTML=`
+function showPRO() {
+    voteBox.innerHTML = `
     <h3>PRO</h3>
-    <div class="candidate">🧑🏽 Kwame <button onclick="vote('pro','Kwame')">Vote</button></div>
-    <div class="candidate">👩🏽 Yaa <button onclick="vote('pro','Yaa')">Vote</button></div>`;
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/men/45.jpg">
+        <span>Kwame</span>
+        <button onclick="vote('pro','Kwame')">Vote</button>
+    </div>
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/women/65.jpg">
+        <span>Yaa</span>
+        <button onclick="vote('pro','Yaa')">Vote</button>
+    </div>`;
 }
 
-function showGS(){
-    voteBox.innerHTML=`
+function showGS() {
+    voteBox.innerHTML = `
     <h3>General Secretary</h3>
-    <div class="candidate">🧑🏽 Kwaku <button onclick="vote('gs','Kwaku')">Vote</button></div>
-    <div class="candidate">👩🏽 Abena <button onclick="vote('gs','Abena')">Vote</button></div>`;
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/men/50.jpg">
+        <span>Kwaku</span>
+        <button onclick="vote('gs','Kwaku')">Vote</button>
+    </div>
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/women/30.jpg">
+        <span>Abena</span>
+        <button onclick="vote('gs','Abena')">Vote</button>
+    </div>`;
 }
 
-function showFS(){
-    voteBox.innerHTML=`
+function showFS() {
+    voteBox.innerHTML = `
     <h3>Financial Secretary</h3>
-    <div class="candidate">💼 Kwabena <button onclick="vote('fs','Kwabena')">Vote</button></div>
-    <div class="candidate">📊 Akua <button onclick="vote('fs','Akua')">Vote</button></div>`;
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/men/60.jpg">
+        <span>Kwabena</span>
+        <button onclick="vote('fs','Kwabena')">Vote</button>
+    </div>
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/women/20.jpg">
+        <span>Akua</span>
+        <button onclick="vote('fs','Akua')">Vote</button>
+    </div>`;
 }
 
-function showTreasurer(){
-    voteBox.innerHTML=`
+function showTreasurer() {
+    voteBox.innerHTML = `
     <h3>Treasurer</h3>
-    <div class="candidate">💰 Kwesi <button onclick="vote('treasurer','Kwesi')">Finish</button></div>
-    <div class="candidate">🪙 Nana <button onclick="vote('treasurer','Nana')">Finish</button></div>`;
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/men/22.jpg">
+        <span>Kwesi</span>
+        <button onclick="vote('treasurer','Kwesi')">Finish</button>
+    </div>
+
+    <div class="candidate">
+        <img src="https://randomuser.me/api/portraits/women/10.jpg">
+        <span>Nana</span>
+        <button onclick="vote('treasurer','Nana')">Finish</button>
+    </div>`;
 }
 
 </script>
 
-<!-- =========================
-   FIREBASE (FIXED VERSION)
-========================= -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, get, set, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-/* 🔥 YOUR EXACT FIREBASE CONFIG */
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyD-5zquVd326wP1atuvZPxCz7eFiQhl-I",
   authDomain: "election-system-cbde4.firebaseapp.com",
   databaseURL: "https://election-system-cbde4-default-rtdb.firebaseio.com",
   projectId: "election-system-cbde4",
   storageBucket: "election-system-cbde4.firebasestorage.app",
   messagingSenderId: "782261417100",
-  appId: "1:782261417100:web:f3ad49407bf383c7a777a9",
-  measurementId: "G-HRSR2JC2XY"
-};
+  appId: "1:782261417100:web:f3ad49407bf383c7a777a9"
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* 🔥 make Firebase available globally */
 window.db = db;
 window.ref = ref;
 window.get = get;
@@ -226,46 +257,22 @@ window.set = set;
 window.runTransaction = runTransaction;
 window.onValue = onValue;
 
-/* =========================
-   VOTE FUNCTION
-========================= */
-window.vote = function(pos, name){
-
-    const voteRef = ref(db, 'results/' + pos + '/' + name);
-
-    runTransaction(voteRef, (current) => {
-        return (current || 0) + 1;
-    });
-
+window.vote = (pos, name) => {
+    runTransaction(ref(db, 'results/' + pos + '/' + name), v => (v || 0) + 1);
     next(pos);
 };
 
-/* =========================
-   LIVE RESULTS
-========================= */
-window.showResults = function(){
+window.showResults = () => {
+    onValue(ref(db, 'results'), snap => {
+        let data = snap.val() || {}, html = "";
 
-    const resultsRef = ref(db, 'results');
-
-    onValue(resultsRef, (snapshot) => {
-
-        const results = snapshot.val() || {};
-        let html = "";
-
-        for(let pos in results){
-
-            html += `<h4>${pos.toUpperCase()}</h4>`;
-
-            for(let c in results[pos]){
-                let count = results[pos][c];
-
-                html += `
-                ${c}: ${count}
-                <div class="bar">
-                    <div class="fill" style="width:${count * 20}px"></div>
-                </div>`;
+        for (let p in data) {
+            html += `<h4>${p.toUpperCase()}</h4>`;
+            for (let c in data[p]) {
+                let n = data[p][c];
+                html += `${c}: ${n}
+                <div class="bar"><div class="fill" style="width:${n * 20}px"></div></div>`;
             }
-
             html += "<br>";
         }
 
