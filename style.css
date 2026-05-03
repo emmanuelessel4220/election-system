@@ -1,249 +1,308 @@
-body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #141e30, #243b55);
+/* =========================
+   BACKGROUND (COURT IMAGE)
+========================= */
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:url("https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1") center/cover no-repeat;
+}
+
+/* DARK OVERLAY */
+body::before{
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.75);
+    z-index:-1;
 }
 
 /* =========================
    MAIN CONTAINER
 ========================= */
-.container {
-    width: 980px;
-    margin: 40px auto;
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 18px 45px rgba(0,0,0,0.4);
+.container{
+    width:1000px;
+    margin:40px auto;
+    padding:25px;
+    border-radius:20px;
+
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(15px);
+
+    box-shadow:0 20px 50px rgba(0,0,0,0.6);
 }
 
 /* =========================
    TITLE
 ========================= */
-.title {
-    text-align: center;
-    background: #111;
-    color: #fff;
-    padding: 18px;
-    font-size: 22px;
-    border-radius: 50px;
-    font-weight: bold;
+.title{
+    text-align:center;
+    background:rgba(0,0,0,0.85);
+    color:white;
+    padding:15px;
+    border-radius:40px;
+    font-size:20px;
+    font-weight:bold;
+    letter-spacing:1px;
 }
 
 /* =========================
    LAYOUT
 ========================= */
-.content {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
+.content{
+    display:flex;
+    gap:20px;
+    margin-top:20px;
 }
 
 /* =========================
-   LOGIN (CLEAR & MODERN)
+   LOGIN PANEL (GLASS)
 ========================= */
-.left {
-    width: 35%;
-    background: #f9fafc;
-    padding: 25px;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+.left{
+    width:35%;
+    padding:25px;
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(12px);
+
+    color:white;
+    text-align:center;
+
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
-.left h3 {
-    text-align: center;
-    color: #111;
-    font-size: 20px;
+/* LOGO */
+.logo{
+    font-size:45px;
+    margin-bottom:10px;
 }
 
-/* ICON */
-.left::before {
-    content: "🗳️";
-    display: block;
-    text-align: center;
-    font-size: 40px;
-    margin-bottom: 10px;
+/* LOGIN TITLE */
+.left h3{
+    margin-bottom:15px;
 }
 
 /* INPUTS */
-.left input {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 14px;
-    background: #fff;
+.left input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+
+    border:none;
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.9);
+    font-size:14px;
+
+    transition:0.3s;
 }
 
-.left input:focus {
-    border: 1px solid #2c6cb0;
-    box-shadow: 0 0 6px rgba(44,108,176,0.3);
+.left input:focus{
+    transform:scale(1.03);
+    box-shadow:0 0 10px rgba(0,198,255,0.6);
 }
 
 /* BUTTONS */
-.left button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+.left button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+
+    border:none;
+    border-radius:12px;
+
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
 }
 
-/* USER LOGIN */
-.left button:first-of-type {
-    background: #2c6cb0;
-    color: white;
+/* USER BUTTON */
+.left button:first-of-type{
+    background:linear-gradient(90deg,#00c6ff,#0072ff);
+    color:white;
 }
 
-.left button:first-of-type:hover {
-    background: #1f4f8f;
+.left button:first-of-type:hover{
+    transform:scale(1.05);
 }
 
-/* ADMIN */
-.left button:nth-of-type(2) {
-    background: #e74c3c;
-    color: white;
+/* ADMIN BUTTON */
+.left button:nth-of-type(2){
+    background:linear-gradient(90deg,#ff512f,#dd2476);
+    color:white;
 }
 
-.left button:nth-of-type(2):hover {
-    background: #c0392b;
+.left button:nth-of-type(2):hover{
+    transform:scale(1.05);
 }
 
 /* =========================
    DASHBOARD
 ========================= */
-.right {
-    width: 65%;
-    display: flex;
-    gap: 15px;
+.right{
+    width:65%;
+    display:flex;
+    gap:20px;
 }
 
 /* =========================
    NAVIGATION
 ========================= */
-.nav-box {
-    width: 35%;
-    background: #e9ecef;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid #d0d0d0;
+.nav-box{
+    width:30%;
+    padding:20px;
+    border-radius:15px;
+
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
+
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
-.nav-box h4 {
-    text-align: center;
-    color: #111;
+.nav-box h4{
+    text-align:center;
+    color:white;
+    margin-bottom:15px;
 }
 
-.nav-box ul {
-    list-style: none;
-    padding: 0;
+.nav-box ul{
+    padding:0;
 }
 
-.nav-box li {
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 10px;
-    background: #d6d6d6;
-    text-align: center;
-    font-weight: bold;
-    cursor: pointer;
-    color: #000;
-    transition: 0.2s;
+.nav-box li{
+    list-style:none;
+    padding:12px;
+    margin:8px 0;
+    border-radius:10px;
+
+    background:rgba(255,255,255,0.85);
+    color:black;
+
+    text-align:center;
+    font-weight:bold;
+
+    transition:0.3s;
 }
 
-.nav-box li:hover {
-    background: #c0c0c0;
-}
-
-/* =========================
-   VOTE BOX
-========================= */
-.vote-box {
-    width: 65%;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
-}
-
-.vote-box h3 {
-    text-align: center;
-    color: #111;
+.nav-box li:hover{
+    background:#00c6ff;
+    color:white;
+    transform:scale(1.05);
 }
 
 /* =========================
-   CANDIDATE CARDS (CLEAR & ATTRACTIVE)
+   VOTING PANEL
 ========================= */
-.candidate {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.vote-box{
+    width:70%;
+    padding:20px;
+    border-radius:15px;
 
-    background: #f8f9fb;
-    padding: 16px;
-    margin: 12px 0;
-    border-radius: 12px;
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
 
-    border: 1px solid #e0e0e0;
-    transition: 0.2s;
+    color:white;
+
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
-/* hover */
-.candidate:hover {
-    background: #eef4ff;
-    transform: translateY(-2px);
+.vote-box h3{
+    text-align:center;
+    margin-bottom:20px;
+    font-size:20px;
 }
 
-/* emoji */
-.candidate::before {
-    content: "👤";
-    font-size: 24px;
-    margin-right: 10px;
-}
-
-/* vote button */
-.candidate button {
-    background: #27ae60;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.candidate button:hover {
-    background: #1e8449;
+/* underline effect */
+.vote-box h3::after{
+    content:"";
+    display:block;
+    width:60px;
+    height:3px;
+    background:#00c6ff;
+    margin:10px auto;
+    border-radius:10px;
 }
 
 /* =========================
-   FOOTER
+   CANDIDATE CARDS
 ========================= */
-.footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 12px;
-    color: #ccc;
+.candidate{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:white;
+    color:black;
+
+    padding:15px;
+    margin:12px 0;
+    border-radius:15px;
+
+    box-shadow:0 6px 18px rgba(0,0,0,0.2);
+    transition:0.3s;
+}
+
+.candidate:hover{
+    transform:translateY(-4px) scale(1.02);
+}
+
+/* BUTTON */
+.candidate button{
+    padding:8px 16px;
+    border:none;
+    border-radius:10px;
+
+    background:linear-gradient(90deg,#28a745,#1e7e34);
+    color:white;
+
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.candidate button:hover{
+    transform:scale(1.1);
+}
+
+/* =========================
+   RESULTS BARS
+========================= */
+.bar{
+    height:10px;
+    background:#ddd;
+    border-radius:10px;
+    margin:5px 0;
+}
+
+.fill{
+    height:100%;
+    background:linear-gradient(90deg,#00c6ff,#0072ff);
+    border-radius:10px;
+}
+
+/* =========================
+   FOOTER (OPTIONAL)
+========================= */
+.footer{
+    text-align:center;
+    color:white;
+    margin-top:15px;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
-@media screen and (max-width: 900px) {
-    .content {
-        flex-direction: column;
+@media screen and (max-width:900px){
+    .content{
+        flex-direction:column;
     }
 
-    .left, .right {
-        width: 100%;
+    .left, .right{
+        width:100%;
     }
 
-    .nav-box, .vote-box {
-        width: 100%;
+    .nav-box, .vote-box{
+        width:100%;
     }
 }
