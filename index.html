@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html>
 <head>
     <title>Mama Is The Reason Election System</title>
@@ -55,32 +55,6 @@
 <script>
 
 /* =========================
-   24H STORAGE SYSTEM
-========================= */
-const EXPIRY_TIME = 24 * 60 * 60 * 1000;
-
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify({
-        data: data,
-        time: Date.now()
-    }));
-}
-
-function loadData(key, defaultValue) {
-    let item = localStorage.getItem(key);
-    if (!item) return defaultValue;
-
-    item = JSON.parse(item);
-
-    if (Date.now() - item.time > EXPIRY_TIME) {
-        localStorage.removeItem(key);
-        return defaultValue;
-    }
-
-    return item.data;
-}
-
-/* =========================
    VOTERS
 ========================= */
 let voterPasswords = [];
@@ -88,19 +62,7 @@ for (let i = 0; i < 100; i++) {
     voterPasswords.push(1230 + i);
 }
 
-/* =========================
-   LOAD DATA
-========================= */
-let usedPasswords = loadData("usedPasswords", []);
-
-let results = loadData("results", {
-    president: { Ama: 0, Kofi: 0 },
-    pro: { Kwame: 0, Yaa: 0 },
-    gs: { Kwaku: 0, Abena: 0 },
-    fs: { Kwabena: 0, Akua: 0 },
-    treasurer: { Kwesi: 0, Nana: 0 }
-});
-
+let usedPasswords = [];
 let currentPassword = null;
 
 /* =========================
@@ -139,24 +101,15 @@ function adminLogin(){
         voteBox.style.display="none";
         adminPanel.style.display="block";
 
-        setInterval(showResults,1000);
+        showResults(); // 🔥 real-time now
     } else {
         alert("Wrong password ❌");
     }
 }
 
 /* =========================
-   VOTING
+   NEXT FLOW
 ========================= */
-function vote(pos,name){
-    results[pos][name]++;
-
-    // save results
-    saveData("results", results);
-
-    next(pos);
-}
-
 function next(pos){
     if(pos==="president") showPRO();
     else if(pos==="pro") showGS();
@@ -171,9 +124,6 @@ function next(pos){
 function finishVoting(){
 
     usedPasswords.push(currentPassword);
-
-    // save used passwords
-    saveData("usedPasswords", usedPasswords);
 
     voteBox.innerHTML = "<h3>Thank you for voting 🗳</h3>";
 
@@ -231,35 +181,76 @@ function showTreasurer(){
 }
 
 /* =========================
-   RESULTS + WINNER
+   WINNER
 ========================= */
 function getWinner(obj){
     return Object.entries(obj).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
-function showResults(){
+</script>
 
-    let html="";
+<!-- 🔥 FIREBASE (REAL-TIME ENGINE) -->
+<script type="module">
 
-    for(let pos in results){
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-        html+=`<h4>${pos.toUpperCase()} (🏆 ${getWinner(results[pos])})</h4>`;
+const firebaseConfig = {
+  apiKey: "AIzaSyD-5zquVd326wP1atuvZPxCz7eVFiQhl-I",
+  authDomain: "election-system-cbde4.firebaseapp.com",
+  databaseURL: "https://election-system-cbde4-default-rtdb.firebaseio.com",
+  projectId: "election-system-cbde4",
+  storageBucket: "election-system-cbde4.firebasestorage.app",
+  messagingSenderId: "782261417100",
+  appId: "1:782261417100:web:f3ad49407bf383c7a777a9"
+};
 
-        for(let c in results[pos]){
-            let count=results[pos][c];
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-            html+=`
-            ${c}: ${count}
-            <div class="bar">
-                <div class="fill" style="width:${count*20}px"></div>
-            </div>`;
+// 🔥 VOTE FUNCTION (REAL-TIME)
+window.vote = function(pos, name){
+
+    const voteRef = ref(db, 'results/' + pos + '/' + name);
+
+    runTransaction(voteRef, (current) => {
+        return (current || 0) + 1;
+    });
+
+    next(pos);
+};
+
+// 🔥 LIVE RESULTS
+window.showResults = function(){
+
+    const resultsRef = ref(db, 'results');
+
+    onValue(resultsRef, (snapshot) => {
+
+        const results = snapshot.val() || {};
+        let html = "";
+
+        for(let pos in results){
+
+            html += `<h4>${pos.toUpperCase()} (🏆 ${getWinner(results[pos])})</h4>`;
+
+            for(let c in results[pos]){
+                let count = results[pos][c];
+
+                html += `
+                ${c}: ${count}
+                <div class="bar">
+                    <div class="fill" style="width:${count*20}px"></div>
+                </div>`;
+            }
+
+            html += "<br>";
         }
 
-        html+="<br>";
-    }
+        resultsBox.innerHTML = html;
 
-    resultsBox.innerHTML=html;
-}
+    });
+};
 
 </script>
 
