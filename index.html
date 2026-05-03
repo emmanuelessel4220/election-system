@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mama Is The Reason Election System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">
+        Mama Is The Reason Election System
+    </div>
+
+    <div class="content">
+
+        <!-- LOGIN PANEL -->
+        <div class="left" id="loginPanel">
+
+            <h3>Login</h3>
+
+            <input id="voterId" type="text" placeholder="Voter Name">
+            <input id="password" type="password" placeholder="Password (first 4 digits of phone)">
+
+            <button onclick="login()">Login</button>
+            <button onclick="adminLogin()">Admin Login</button>
+
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="right" id="dashboard" style="display:none;">
+
+            <!-- NAVIGATION -->
+            <div class="nav-box">
+                <h4>Positions</h4>
+                <ul>
+                    <li onclick="showPresident()">President</li>
+                    <li onclick="showPRO()">PRO</li>
+                    <li onclick="showGS()">General Secretary</li>
+                    <li onclick="showFS()">Financial Secretary</li>
+                    <li onclick="showTreasurer()">Treasurer</li>
+                </ul>
+            </div>
+
+            <!-- VOTE AREA -->
+            <div class="vote-box" id="voteBox">
+                <h3>Start Voting</h3>
+            </div>
+
+            <!-- ADMIN PANEL -->
+            <div class="vote-box" id="adminPanel" style="display:none;">
+                <h3>Admin Dashboard - Live Results</h3>
+                <div id="resultsBox"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        © Mama Is The Reason Election System
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   VOTERS DATABASE
+========================= */
+const voters = [
+    { voterId:"Ernest", phone:"0532012908", voted:false },
+    { voterId:"Roney", phone:"0552284221", voted:false },
+    { voterId:"Nyatefe", phone:"0559573294", voted:false },
+    { voterId:"Mercy", phone:"0201764583", voted:false },
+    { voterId:"Smith", phone:"0500639485", voted:false },
+    { voterId:"Williams", phone:"0598498146", voted:false },
+    { voterId:"Simon", phone:"0536724720", voted:false },
+    { voterId:"Emmanuel", phone:"0597231175", voted:false },
+    { voterId:"Richard", phone:"0547781478", voted:false },
+    { voterId:"Festus", phone:"0542196273", voted:false }
+];
+
+/* =========================
+   VOTE RESULTS STORAGE
+========================= */
+let results = {
+    president: { Ama: 0, Kofi: 0 },
+    pro: { Kwame: 0, Yaa: 0 },
+    gs: { Kwaku: 0, Abena: 0 },
+    fs: { Kwabena: 0, Akua: 0 },
+    treasurer: { Kwesi: 0, Nana: 0 }
+};
+
+let currentVoter = null;
+
+/* =========================
+   LOGIN
+========================= */
+function login() {
+
+    let id = document.getElementById("voterId").value;
+    let pass = document.getElementById("password").value;
+
+    let voter = voters.find(v => v.voterId === id);
+
+    if (!voter) return alert("Voter not found ❌");
+
+    if (pass !== voter.phone.substring(0,4)) {
+        return alert("Wrong password ❌");
+    }
+
+    if (voter.voted) return alert("Already voted ❌");
+
+    currentVoter = voter;
+
+    document.getElementById("loginPanel").style.display = "none";
+    document.getElementById("dashboard").style.display = "flex";
+
+    showPresident();
+}
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+function adminLogin() {
+
+    let pass = prompt("Enter Admin Password");
+
+    if (pass === "admin123") {
+        document.getElementById("loginPanel").style.display = "none";
+        document.getElementById("dashboard").style.display = "flex";
+        document.getElementById("voteBox").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+
+        showResults();
+    } else {
+        alert("Wrong admin password ❌");
+    }
+}
+
+/* =========================
+   VOTING FLOW
+========================= */
+function vote(position, candidate) {
+    results[position][candidate]++;
+    showNext(position);
+}
+
+function showNext(position) {
+    if (position === "president") showPRO();
+    else if (position === "pro") showGS();
+    else if (position === "gs") showFS();
+    else if (position === "fs") showTreasurer();
+    else finishVote();
+}
+
+function finishVote() {
+    alert("Voting Completed ✔");
+
+    currentVoter.voted = true;
+
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("loginPanel").style.display = "block";
+
+    document.getElementById("voterId").value = "";
+    document.getElementById("password").value = "";
+
+    currentVoter = null;
+}
+
+/* =========================
+   POSITIONS UI
+========================= */
+function showPresident() {
+    document.getElementById("voteBox").innerHTML = `
+        <h3>President</h3>
+
+        <div class="candidate">
+            Ama <button onclick="vote('president','Ama')">Vote</button>
+        </div>
+
+        <div class="candidate">
+            Kofi <button onclick="vote('president','Kofi')">Vote</button>
+        </div>
+    `;
+}
+
+function showPRO() {
+    document.getElementById("voteBox").innerHTML = `
+        <h3>PRO</h3>
+
+        <div class="candidate">
+            Kwame <button onclick="vote('pro','Kwame')">Vote</button>
+        </div>
+
+        <div class="candidate">
+            Yaa <button onclick="vote('pro','Yaa')">Vote</button>
+        </div>
+    `;
+}
+
+function showGS() {
+    document.getElementById("voteBox").innerHTML = `
+        <h3>General Secretary</h3>
+
+        <div class="candidate">
+            Kwaku <button onclick="vote('gs','Kwaku')">Vote</button>
+        </div>
+
+        <div class="candidate">
+            Abena <button onclick="vote('gs','Abena')">Vote</button>
+        </div>
+    `;
+}
+
+function showFS() {
+    document.getElementById("voteBox").innerHTML = `
+        <h3>Financial Secretary</h3>
+
+        <div class="candidate">
+            Kwabena <button onclick="vote('fs','Kwabena')">Vote</button>
+        </div>
+
+        <div class="candidate">
+            Akua <button onclick="vote('fs','Akua')">Vote</button>
+        </div>
+    `;
+}
+
+function showTreasurer() {
+    document.getElementById("voteBox").innerHTML = `
+        <h3>Treasurer</h3>
+
+        <div class="candidate">
+            Kwesi <button onclick="vote('treasurer','Kwesi')">Finish</button>
+        </div>
+
+        <div class="candidate">
+            Nana <button onclick="vote('treasurer','Nana')">Finish</button>
+        </div>
+    `;
+}
+
+/* =========================
+   ADMIN RESULTS DISPLAY
+========================= */
+function showResults() {
+
+    document.getElementById("resultsBox").innerHTML = `
+        <h4>President</h4>
+        Ama: ${results.president.Ama} <br>
+        Kofi: ${results.president.Kofi} <br><br>
+
+        <h4>PRO</h4>
+        Kwame: ${results.pro.Kwame} <br>
+        Yaa: ${results.pro.Yaa} <br><br>
+
+        <h4>General Secretary</h4>
+        Kwaku: ${results.gs.Kwaku} <br>
+        Abena: ${results.gs.Abena} <br><br>
+
+        <h4>Financial Secretary</h4>
+        Kwabena: ${results.fs.Kwabena} <br>
+        Akua: ${results.fs.Akua} <br><br>
+
+        <h4>Treasurer</h4>
+        Kwesi: ${results.treasurer.Kwesi} <br>
+        Nana: ${results.treasurer.Nana} <br>
+    `;
+}
+
+</script>
+
+</body>
+</html>
