@@ -15,7 +15,6 @@
 
         <!-- LOGIN -->
         <div class="left" id="loginPanel">
-
             <div class="logo">🏛</div>
             <h3>Voter Login</h3>
 
@@ -24,13 +23,11 @@
 
             <button onclick="login()">Login</button>
             <button onclick="adminLogin()">Admin</button>
-
         </div>
 
         <!-- DASHBOARD -->
         <div class="right" id="dashboard" style="display:none;">
 
-            <!-- NAV (DISABLED CLICKING) -->
             <div class="nav-box">
                 <h4>Positions</h4>
                 <ul>
@@ -44,7 +41,6 @@
 
             <div class="vote-box" id="voteBox"></div>
 
-            <!-- ADMIN -->
             <div class="vote-box" id="adminPanel" style="display:none;">
                 <h3>📊 Live Results</h3>
                 <div id="resultsBox"></div>
@@ -59,26 +55,53 @@
 <script>
 
 /* =========================
-   BULK VOTERS (100)
+   24H STORAGE SYSTEM
+========================= */
+const EXPIRY_TIME = 24 * 60 * 60 * 1000;
+
+function saveData(key, data) {
+    localStorage.setItem(key, JSON.stringify({
+        data: data,
+        time: Date.now()
+    }));
+}
+
+function loadData(key, defaultValue) {
+    let item = localStorage.getItem(key);
+    if (!item) return defaultValue;
+
+    item = JSON.parse(item);
+
+    if (Date.now() - item.time > EXPIRY_TIME) {
+        localStorage.removeItem(key);
+        return defaultValue;
+    }
+
+    return item.data;
+}
+
+/* =========================
+   VOTERS
 ========================= */
 let voterPasswords = [];
-let usedPasswords = [];
-let currentPassword = null;
-
 for (let i = 0; i < 100; i++) {
     voterPasswords.push(1230 + i);
 }
 
 /* =========================
-   RESULTS
+   LOAD DATA
 ========================= */
-let results = {
+let usedPasswords = loadData("usedPasswords", []);
+
+let results = loadData("results", {
     president: { Ama: 0, Kofi: 0 },
     pro: { Kwame: 0, Yaa: 0 },
     gs: { Kwaku: 0, Abena: 0 },
     fs: { Kwabena: 0, Akua: 0 },
     treasurer: { Kwesi: 0, Nana: 0 }
-};
+});
+
+let currentPassword = null;
 
 /* =========================
    LOGIN
@@ -93,10 +116,10 @@ function login(){
     if(!voterPasswords.includes(Number(pass)))
         return alert("Invalid password ❌");
 
-    if(usedPasswords.includes(pass))
+    if(usedPasswords.includes(Number(pass)))
         return alert("Already used ❌");
 
-    currentPassword = pass;
+    currentPassword = Number(pass);
 
     loginPanel.style.display="none";
     dashboard.style.display="flex";
@@ -105,29 +128,36 @@ function login(){
 }
 
 /* =========================
-   ADMIN
+   ADMIN LOGIN
 ========================= */
 function adminLogin(){
     let pass = prompt("Admin password");
+
     if(pass==="admin123"){
         loginPanel.style.display="none";
         dashboard.style.display="flex";
         voteBox.style.display="none";
         adminPanel.style.display="block";
+
         setInterval(showResults,1000);
-    } else alert("Wrong password");
+    } else {
+        alert("Wrong password ❌");
+    }
 }
 
 /* =========================
-   VOTING FLOW
+   VOTING
 ========================= */
 function vote(pos,name){
     results[pos][name]++;
+
+    // save results
+    saveData("results", results);
+
     next(pos);
 }
 
 function next(pos){
-
     if(pos==="president") showPRO();
     else if(pos==="pro") showGS();
     else if(pos==="gs") showFS();
@@ -136,12 +166,14 @@ function next(pos){
 }
 
 /* =========================
-   AUTO LOGOUT
+   FINISH
 ========================= */
 function finishVoting(){
 
-    // mark password as used
     usedPasswords.push(currentPassword);
+
+    // save used passwords
+    saveData("usedPasswords", usedPasswords);
 
     voteBox.innerHTML = "<h3>Thank you for voting 🗳</h3>";
 
@@ -210,10 +242,12 @@ function showResults(){
     let html="";
 
     for(let pos in results){
-        html+=`<h4>${pos.toUpperCase()} (Winner: ${getWinner(results[pos])})</h4>`;
+
+        html+=`<h4>${pos.toUpperCase()} (🏆 ${getWinner(results[pos])})</h4>`;
 
         for(let c in results[pos]){
             let count=results[pos][c];
+
             html+=`
             ${c}: ${count}
             <div class="bar">
